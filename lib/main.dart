@@ -1,3 +1,4 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -40,17 +41,29 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  late AssetsAudioPlayer _assetsAudioPlayer;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  void initState() {
+    // TODO: implement initState
+    _assetsAudioPlayer = AssetsAudioPlayer.newPlayer();
+    super.initState();
+    openPlayer();
+  }
+
+  void openPlayer() async {
+    await _assetsAudioPlayer.open(
+      Audio("assets/audios/avicii_wake_me_up.mp3"),
+      showNotification: true,
+      autoStart: true,
+    );
+  }
+
+  @override
+  void dispose() {
+    _assetsAudioPlayer.dispose();
+    print('dispose');
+    super.dispose();
   }
 
   @override
@@ -66,9 +79,16 @@ class _MyHomePageState extends State<MyHomePage> {
               'You have pushed the button this many times:',
             ),
             Text(
-              '$_counter',
+              'check',
               style: Theme.of(context).textTheme.headline4,
             ),
+            OutlinedButton(onPressed: () async {
+              await _assetsAudioPlayer.open(
+                Audio("assets/audios/avicii_wake_me_up.mp3"),
+                autoStart: true,
+                showNotification: true,
+              );
+            }, child: const Text("play")),
           ],
         ),
       ),
