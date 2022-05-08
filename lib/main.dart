@@ -42,6 +42,7 @@ class _MyAppState extends State<MyApp> {
     _assetsAudioPlayer.open(
       Playlist(audios: audios,),
       loopMode: LoopMode.playlist,
+      autoStart: false,
     );
   }
 
@@ -71,6 +72,9 @@ class _MyAppState extends State<MyApp> {
                   ),
                   onPressed: () async {
                     _assetsAudioPlayer.previous();
+                    setState(() {
+                      isPlaying = true;
+                    });
                   },
                 ),
                 const SizedBox(width: 15,),
@@ -114,11 +118,26 @@ class _MyAppState extends State<MyApp> {
                   ),
                   onPressed: () async {
                     _assetsAudioPlayer.next();
+                    setState(() {
+                      isPlaying = true;
+                    });
                   },
                 ),
               ],
             ),
           ),
+        ),
+        bottomNavigationBar: CurvedNavigationBar(
+          backgroundColor: Colors.transparent,
+          items: const [
+            Icon(Icons.play_arrow, size: 30, color: Colors.white,),
+            Icon(Icons.add, size: 30, color: Colors.white,),
+            Icon(Icons.download, size: 30, color: Colors.white,),
+          ],
+          color: NeumorphicColors.darkBackground,
+          onTap: (value) {
+            print("change $value");
+          },
         ),
       ),
     );
