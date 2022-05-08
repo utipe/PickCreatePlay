@@ -1,26 +1,130 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
 void main() {
-  runApp(const MyApp());
+  AssetsAudioPlayer.setupNotificationsOpenAction((notification) {
+    return true;
+  });
+  runApp(NeumorphicTheme(
+    theme: const NeumorphicThemeData(
+      intensity: 0.8,
+      lightSource: LightSource.topLeft
+    ),
+    child: const MyApp(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late AssetsAudioPlayer _assetsAudioPlayer;
+  bool isPlaying = false;
+  final audios = <Audio>[
+    Audio("assets/audios/avicii_wake_me_up.mp3"),
+    Audio("assets/audios/glad_you_came.mp3"),
+    Audio("assets/audios/i_need_a_hero.mp3"),
+    Audio("assets/audios/meduza_paradise.mp3"),
+    Audio("assets/audios/zedd_stay_the_night.mp3"),
+    Audio("assets/audios/a_place_with_no_name.mp3"),
+  ];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _assetsAudioPlayer = AssetsAudioPlayer.newPlayer();
+    _assetsAudioPlayer.open(
+      Playlist(audios: audios,),
+      loopMode: LoopMode.playlist,
+    );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _assetsAudioPlayer.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pick Create Play',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      home: Scaffold(
+        backgroundColor: NeumorphicTheme.baseColor(context),
+        body: SafeArea(
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                NeumorphicButton(
+                  style: const NeumorphicStyle(
+                    boxShape: NeumorphicBoxShape.circle(),
+                  ),
+                  child: const Icon(
+                    Icons.skip_previous,
+                    size: 35,
+                  ),
+                  onPressed: () async {
+                    _assetsAudioPlayer.previous();
+                  },
+                ),
+                const SizedBox(width: 15,),
+                isPlaying ? NeumorphicButton(
+                  style: const NeumorphicStyle(
+                    boxShape: NeumorphicBoxShape.circle(),
+                  ),
+                  child: const Icon(
+                    Icons.pause,
+                    size: 55,
+                  ),
+                  onPressed: () async {
+                    _assetsAudioPlayer.pause();
+                    setState(() {
+                      isPlaying = false;
+                    });
+                  },
+                ) : NeumorphicButton(
+                  style: const NeumorphicStyle(
+                    boxShape: NeumorphicBoxShape.circle(),
+                  ),
+                  child: const Icon(
+                    Icons.play_arrow,
+                    size: 55,
+                  ),
+                  onPressed: () async {
+                    _assetsAudioPlayer.play();
+                    setState(() {
+                      isPlaying = true;
+                    });
+                  },
+                ),
+                const SizedBox(width: 15,),
+                NeumorphicButton(
+                  style: const NeumorphicStyle(
+                    boxShape: NeumorphicBoxShape.circle(),
+                  ),
+                  child: const Icon(
+                    Icons.skip_next,
+                    size: 35,
+                  ),
+                  onPressed: () async {
+                    _assetsAudioPlayer.next();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
@@ -48,21 +152,11 @@ class _MyHomePageState extends State<MyHomePage> {
     // TODO: implement initState
     _assetsAudioPlayer = AssetsAudioPlayer.newPlayer();
     super.initState();
-    openPlayer();
-  }
-
-  void openPlayer() async {
-    await _assetsAudioPlayer.open(
-      Audio("assets/audios/avicii_wake_me_up.mp3"),
-      showNotification: true,
-      autoStart: true,
-    );
   }
 
   @override
   void dispose() {
     _assetsAudioPlayer.dispose();
-    print('dispose');
     super.dispose();
   }
 
@@ -89,6 +183,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 showNotification: true,
               );
             }, child: const Text("play")),
+            OutlinedButton(onPressed: () async {
+              await _assetsAudioPlayer.stop();
+            }, child: const Text("stop")),
           ],
         ),
       ),
